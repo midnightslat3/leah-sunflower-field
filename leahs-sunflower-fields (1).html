@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leah's Sunflower Fields</title>
+<style>
+  :root {
+    --sky-top: #aee3f5;
+    --sky-bottom: #fdf3c9;
+    --sun: #ffd54a;
+    --petal: #f5b820;
+    --petal-deep: #e09a10;
+    --seed: #6b4423;
+    --seed-dark: #4a2e16;
+    --stem: #4f8a3d;
+    --leaf: #5e9c47;
+    --field-near: #7fb35a;
+    --field-far: #a8c97a;
+    --paper: #fff8e7;
+    --ink: #3d2c12;
+    --ink-soft: #6f5a35;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.65;
+  }
+
+  h1, h2, h3, .brand { font-family: Georgia, "Times New Roman", serif; font-weight: normal; }
+
+  /* ================= NAV ================= */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 5vw;
+    background: rgba(255, 248, 231, 0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(110, 90, 53, 0.18);
+    z-index: 100;
+  }
+  .brand {
+    font-size: 1.25rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--seed-dark);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .brand .dot {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, var(--seed), var(--seed-dark) 70%);
+    box-shadow: 0 0 0 4px var(--petal), 0 0 0 5px var(--petal-deep);
+  }
+  .nav ul { display: flex; gap: 28px; list-style: none; }
+  .nav a:not(.brand) {
+    text-decoration: none;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .nav a:not(.brand):hover,
+  .nav a:not(.brand):focus-visible { color: var(--petal-deep); }
+  a:focus-visible { outline: 2px solid var(--petal-deep); outline-offset: 3px; }
+
+  /* ================= HERO (the field) ================= */
+  .hero {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(to bottom, var(--sky-top) 0%, var(--sky-bottom) 65%);
+  }
+
+  .hero-copy {
+    position: absolute;
+    top: 16%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 20;
+    color: var(--seed-dark);
+    padding: 0 20px;
+    width: 100%;
+  }
+  .hero-copy .eyebrow {
+    font-size: 0.8rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .hero-copy h1 {
+    font-size: clamp(2.4rem, 6.5vw, 5rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: 8px 0 6px;
+  }
+  .hero-copy p { font-style: italic; color: var(--ink-soft); font-size: 1.05rem; }
+  .hero-copy .cta {
+    display: inline-block;
+    margin-top: 22px;
+    padding: 12px 30px;
+    background: var(--seed-dark);
+    color: var(--paper);
+    text-decoration: none;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border-radius: 30px;
+    transition: background 0.25s, transform 0.25s;
+  }
+  .hero-copy .cta:hover { background: var(--petal-deep); transform: translateY(-2px); }
+
+  .sun {
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff5c0 20%, var(--sun) 60%, rgba(255,213,74,0) 100%);
+    box-shadow: 0 0 80px 40px rgba(255, 220, 100, 0.45);
+    animation: glow 6s ease-in-out infinite;
+  }
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 80px 40px rgba(255, 220, 100, 0.45); }
+    50%      { box-shadow: 0 0 100px 55px rgba(255, 220, 100, 0.6); }
+  }
+
+  .cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.9);
+    border-radius: 100px;
+    animation: drift linear infinite;
+  }
+  .cloud::before, .cloud::after {
+    content: ""; position: absolute; background: inherit; border-radius: 50%;
+  }
+  .cloud-1 { top: 14%; left: -180px; width: 160px; height: 45px; animation-duration: 70s; }
+  .cloud-1::before { width: 70px; height: 70px; top: -32px; left: 25px; }
+  .cloud-1::after  { width: 50px; height: 50px; top: -20px; left: 85px; }
+  .cloud-2 { top: 26%; left: -260px; width: 120px; height: 36px; opacity: 0.75; animation-duration: 95s; animation-delay: -30s; }
+  .cloud-2::before { width: 55px; height: 55px; top: -25px; left: 18px; }
+  .cloud-2::after  { width: 40px; height: 40px; top: -15px; left: 62px; }
+  @keyframes drift { from { transform: translateX(0); } to { transform: translateX(calc(100vw + 300px)); } }
+
+  .field-ground {
+    position: absolute;
+    bottom: 0; width: 100%; height: 46%;
+    background: linear-gradient(to bottom, var(--field-far), var(--field-near));
+    border-radius: 50% 50% 0 0 / 14% 14% 0 0;
+  }
+
+  /* ---- Sunflower components ---- */
+  .sunflower {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform-origin: bottom center;
+    animation: sway 5s ease-in-out infinite;
+  }
+  @keyframes sway {
+    0%, 100% { transform: rotate(-2.5deg) scale(var(--s, 1)); }
+    50%      { transform: rotate(2.5deg) scale(var(--s, 1)); }
+  }
+  .head { position: relative; width: 120px; height: 120px; z-index: 2; }
+  .petals { position: absolute; inset: 0; animation: bloomSpin 40s linear infinite; }
+  @keyframes bloomSpin { to { transform: rotate(360deg); } }
+  .petal {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 26px; height: 58px;
+    background: linear-gradient(to top, var(--petal-deep), var(--petal) 60%, #ffd34e);
+    border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
+    transform-origin: 50% 100%;
+    transform: translate(-50%, -100%) rotate(var(--r));
+    display: block;
+  }
+  .petal.back {
+    width: 22px; height: 64px;
+    background: linear-gradient(to top, #c98a0c, var(--petal-deep));
+    z-index: -1;
+  }
+  .center {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 56px; height: 56px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, var(--seed) 0%, var(--seed-dark) 75%);
+    box-shadow: inset 0 0 0 5px rgba(0,0,0,0.15), 0 2px 6px rgba(0,0,0,0.25);
+    z-index: 3;
+  }
+  .center::after {
+    content: "";
+    position: absolute; inset: 6px; border-radius: 50%;
+    background-image:
+      radial-gradient(circle, rgba(0,0,0,0.35) 1.5px, transparent 1.6px),
+      radial-gradient(circle, rgba(255,255,255,0.12) 1.5px, transparent 1.6px);
+    background-size: 9px 9px, 9px 9px;
+    background-position: 0 0, 4.5px 4.5px;
+  }
+  .stem {
+    width: 10px;
+    height: var(--stem-h, 220px);
+    margin-top: -8px;
+    background: linear-gradient(to right, #3f7030, var(--stem), #3f7030);
+    border-radius: 5px;
+    position: relative;
+    z-index: 1;
+  }
+  .leaf {
+    position: absolute;
+    width: 56px; height: 30px;
+    background: radial-gradient(ellipse at 30% 50%, var(--leaf), #46803a);
+    border-radius: 0 100% 0 100%;
+    display: block;
+  }
+  .leaf.left  { top: 28%; right: 6px; transform: rotate(-30deg) scaleX(-1); }
+  .leaf.right { top: 52%; left: 6px;  transform: rotate(-30deg); }
+
+  /* ================= SECTIONS ================= */
+  section { padding: 90px 5vw; }
+  .section-inner { max-width: 1000px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--petal-deep);
+  }
+  h2 {
+    font-size: clamp(1.7rem, 3.5vw, 2.6rem);
+    color: var(--seed-dark);
+    margin: 6px 0 18px;
+  }
+  .lede { max-width: 640px; color: var(--ink-soft); }
+
+  /* --- About + stats strip --- */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin-top: 44px;
+  }
+  .stat {
+    background: #fffdf6;
+    border: 1px solid rgba(110, 90, 53, 0.22);
+    border-radius: 10px;
+    padding: 22px;
+    text-align: center;
+    box-shadow: 0 3px 0 rgba(110, 90, 53, 0.12);
+  }
+  .stat strong {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 2rem;
+    color: var(--petal-deep);
+  }
+  .stat span { font-size: 0.85rem; color: var(--ink-soft); letter-spacing: 0.05em; }
+
+  /* --- Season timeline --- */
+  .season { background: linear-gradient(to bottom, var(--paper), #fdf0cf); }
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 22px;
+    margin-top: 44px;
+    align-items: end;
+  }
+  .stage {
+    background: #fffdf6;
+    border: 1px solid rgba(110, 90, 53, 0.22);
+    border-radius: 10px;
+    padding: 24px 20px 20px;
+    text-align: center;
+  }
+  .stage h3 { font-size: 1.05rem; color: var(--seed-dark); margin: 14px 0 6px; }
+  .stage p { font-size: 0.88rem; color: var(--ink-soft); }
+  .stage .when {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--petal-deep);
+    border-top: 1px solid rgba(110, 90, 53, 0.2);
+    padding-top: 8px;
+  }
+  /* mini CSS plants per stage */
+  .mini { position: relative; height: 110px; display: flex; justify-content: center; align-items: flex-end; }
+  .mini .m-stem { width: 6px; background: var(--stem); border-radius: 3px; }
+  .mini .m-leaf {
+    position: absolute; width: 26px; height: 14px;
+    background: var(--leaf); border-radius: 0 100% 0 100%;
+  }
+  .stage-1 .m-stem { height: 18px; }
+  .stage-1 .m-leaf { bottom: 14px; margin-left: -26px; transform: rotate(-20deg) scaleX(-1); }
+  .stage-1 .m-leaf + .m-leaf { margin-left: 26px; transform: rotate(-20deg); }
+  .stage-2 .m-stem { height: 55px; }
+  .stage-2 .m-leaf { bottom: 30px; margin-left: -28px; transform: rotate(-25deg) scaleX(-1); }
+  .stage-2 .m-leaf + .m-leaf { bottom: 44px; margin-left: 28px; transform: rotate(-25deg); }
+  .mini .m-bud {
+    position: absolute; bottom: 82px;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: radial-gradient(circle, #8aa84f, #5e9c47);
+  }
+  .stage-3 .m-stem { height: 85px; }
+  .mini .m-bloom {
+    position: absolute; bottom: 74px;
+    width: 44px; height: 44px; border-radius: 50%;
+    background:
+      radial-gradient(circle at center, var(--seed-dark) 0 28%, transparent 29%),
+      repeating-conic-gradient(var(--petal) 0deg 15deg, var(--petal-deep) 15deg 30deg);
+    box-shadow: 0 0 0 3px rgba(224, 154, 16, 0.35);
+  }
+  .stage-4 .m-stem { height: 78px; }
+
+  /* --- Visit --- */
+  .visit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 22px;
+    margin-top: 44px;
+  }
+  .visit-card {
+    border-left: 4px solid var(--petal);
+    background: #fffdf6;
+    padding: 22px 24px;
+    border-radius: 0 10px 10px 0;
+    border-top: 1px solid rgba(110,90,53,0.18);
+    border-right: 1px solid rgba(110,90,53,0.18);
+    border-bottom: 1px solid rgba(110,90,53,0.18);
+  }
+  .visit-card h3 { color: var(--seed-dark); font-size: 1.05rem; margin-bottom: 8px; }
+  .visit-card p { font-size: 0.92rem; color: var(--ink-soft); }
+
+  /* ================= FOOTER ================= */
+  footer {
+    position: relative;
+    background: var(--seed-dark);
+    color: #e9dcc3;
+    padding: 70px 5vw 40px;
+    overflow: hidden;
+    text-align: center;
+  }
+  footer .brand { color: var(--petal); justify-content: center; margin-bottom: 10px; font-size: 1.1rem; }
+  footer p { font-size: 0.85rem; opacity: 0.75; }
+  .footer-row {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 26px;
+  }
+  .footer-row i {
+    width: 16px; height: 16px; border-radius: 50%;
+    background:
+      radial-gradient(circle at center, var(--seed) 0 30%, transparent 31%),
+      repeating-conic-gradient(var(--petal) 0deg 20deg, var(--petal-deep) 20deg 40deg);
+    display: block;
+  }
+
+  @media (max-width: 640px) {
+    .nav ul { gap: 16px; }
+    .nav a:not(.brand) { font-size: 0.72rem; }
+    section { padding: 64px 6vw; }
+  }
+
+
+  /* ---------- Butterflies (pseudo-random flight) ----------
+     X and Y movement run as SEPARATE animations with mismatched prime-number
+     durations, plus an independent jitter layer. The combined motion drifts
+     in and out of phase, so the path never visibly repeats. */
+  .butterfly {
+    position: absolute;
+    top: 0; left: 0;
+    width: 34px;
+    height: 26px;
+    z-index: 30;
+    animation: fly-x var(--xdur, 23s) ease-in-out infinite alternate;
+    animation-delay: var(--xdelay, 0s);
+  }
+  .fly-y {
+    position: absolute;
+    inset: 0;
+    animation: fly-y var(--ydur, 7s) ease-in-out infinite alternate;
+    animation-delay: var(--ydelay, 0s);
+  }
+  .jitter {
+    position: absolute;
+    inset: 0;
+    animation: jitter var(--jdur, 1.7s) ease-in-out infinite;
+  }
+  .flap { position: absolute; inset: 0; }
+
+  .wing {
+    position: absolute;
+    top: 0;
+    width: 15px;
+    height: 26px;
+    border-radius: 60% 60% 45% 45% / 55% 55% 45% 45%;
+    background:
+      radial-gradient(circle at 60% 30%, rgba(255,255,255,0.55) 0 18%, transparent 19%),
+      linear-gradient(to bottom, var(--w1, #f3892c), var(--w2, #d95f0e));
+    box-shadow: inset 0 0 0 2px rgba(74, 46, 22, 0.45);
+  }
+  .wing.left  { left: 0;  transform-origin: right center; animation: flapL var(--fdur, 0.45s) ease-in-out infinite; }
+  .wing.right { right: 0; transform-origin: left center;  animation: flapR var(--fdur, 0.45s) ease-in-out infinite; }
+  .butterfly .body {
+    position: absolute;
+    left: 50%;
+    top: 2px;
+    width: 5px;
+    height: 22px;
+    transform: translateX(-50%);
+    background: linear-gradient(to bottom, #4a2e16, #2e1c0c);
+    border-radius: 3px;
+    z-index: 2;
+  }
+  .butterfly .body::before,
+  .butterfly .body::after {
+    content: "";
+    position: absolute;
+    top: -5px;
+    width: 1.5px;
+    height: 7px;
+    background: #2e1c0c;
+    border-radius: 2px;
+  }
+  .butterfly .body::before { left: 0;  transform: rotate(-25deg); }
+  .butterfly .body::after  { right: 0; transform: rotate(25deg); }
+
+  @keyframes flapL {
+    0%, 100% { transform: rotateY(15deg); }
+    50%      { transform: rotateY(70deg); }
+  }
+  @keyframes flapR {
+    0%, 100% { transform: rotateY(-15deg); }
+    50%      { transform: rotateY(-70deg); }
+  }
+
+  /* horizontal wandering — uneven keyframe spacing = uneven speed */
+  @keyframes fly-x {
+    0%   { transform: translateX(2vw); }
+    13%  { transform: translateX(24vw); }
+    21%  { transform: translateX(15vw); }
+    44%  { transform: translateX(58vw); }
+    58%  { transform: translateX(47vw); }
+    79%  { transform: translateX(86vw); }
+    87%  { transform: translateX(74vw); }
+    100% { transform: translateX(92vw); }
+  }
+  /* vertical wandering — different rhythm entirely */
+  @keyframes fly-y {
+    0%   { transform: translateY(56vh); }
+    17%  { transform: translateY(34vh); }
+    29%  { transform: translateY(46vh); }
+    52%  { transform: translateY(26vh); }
+    66%  { transform: translateY(44vh); }
+    81%  { transform: translateY(30vh); }
+    100% { transform: translateY(52vh); }
+  }
+  /* small erratic flutter layered on top */
+  @keyframes jitter {
+    0%   { transform: translate(0, 0) rotate(0deg); }
+    23%  { transform: translate(7px, -9px) rotate(7deg); }
+    41%  { transform: translate(-5px, 4px) rotate(-6deg); }
+    62%  { transform: translate(8px, 6px) rotate(5deg); }
+    84%  { transform: translate(-6px, -7px) rotate(-7deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .sunflower, .petals, .sun, .cloud { animation: none; }
+    .butterfly, .fly-y, .jitter, .wing { animation: none; }
+    .butterfly { transform: translateX(30vw); }
+    .fly-y { transform: translateY(40vh); }
+  }
+</style>
+</head>
+<body>
+
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="#top"><span class="dot"></span>Leah&rsquo;s Sunflower Fields</a>
+    <ul>
+      <li><a href="#field">The Field</a></li>
+      <li><a href="#season">The Season</a></li>
+      <li><a href="#visit">Visit</a></li>
+    </ul>
+  </nav>
+
+  <!-- ================= HERO ================= -->
+  <header class="hero" id="top">
+    <div class="hero-copy">
+      <p class="eyebrow">Pure HTML &amp; CSS</p>
+      <h1>Leah&rsquo;s Sunflower Fields</h1>
+      <p>Fifty-two sunflowers, swaying in the code breeze</p>
+      <a class="cta" href="#field">Walk the rows</a>
+    </div>
+
+    <div class="sun"></div>
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="field-ground"></div>
+
+    <!-- Butterflies: prime-number animation durations keep paths from repeating -->
+    <div class="butterfly" style="--xdur: 29s; --ydur: 11s; --jdur: 1.7s; --fdur: 0.42s; --xdelay: 0s; --ydelay: -4s; --w1: #f3892c; --w2: #d95f0e;">
+      <div class="fly-y"><div class="jitter"><div class="flap">
+        <span class="wing left"></span><span class="wing right"></span>
+        <span class="body"></span>
+      </div></div></div>
+    </div>
+    <div class="butterfly" style="--xdur: 37s; --ydur: 13s; --jdur: 2.3s; --fdur: 0.5s; --xdelay: -17s; --ydelay: -9s; --w1: #f7c843; --w2: #e09a10; scale: 0.8;">
+      <div class="fly-y"><div class="jitter"><div class="flap">
+        <span class="wing left"></span><span class="wing right"></span>
+        <span class="body"></span>
+      </div></div></div>
+    </div>
+    <div class="butterfly" style="--xdur: 23s; --ydur: 17s; --jdur: 1.3s; --fdur: 0.38s; --xdelay: -11s; --ydelay: -13s; --w1: #e8e3f5; --w2: #b9a7e0; scale: 0.65;">
+      <div class="fly-y"><div class="jitter"><div class="flap">
+        <span class="wing left"></span><span class="wing right"></span>
+        <span class="body"></span>
+      </div></div></div>
+    </div>
+
+      <div class="sunflower" style="left:-4.1%; bottom:0%; --s:0.95; --stem-h:140px; animation-delay:-0.4s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:7.1%; bottom:0%; --s:0.95; --stem-h:140px; animation-delay:-2.1s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:17.6%; bottom:0%; --s:0.95; --stem-h:140px; animation-delay:-1.9s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:30.3%; bottom:0%; --s:0.95; --stem-h:133px; animation-delay:-3.5s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:39.8%; bottom:0%; --s:0.95; --stem-h:144px; animation-delay:-1.5s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:50.9%; bottom:0%; --s:0.95; --stem-h:147px; animation-delay:-0.2s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:63.6%; bottom:0%; --s:0.95; --stem-h:141px; animation-delay:-4.2s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:73.2%; bottom:0%; --s:0.95; --stem-h:140px; animation-delay:-4.7s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:84.9%; bottom:0%; --s:0.95; --stem-h:135px; animation-delay:-4.8s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:96.7%; bottom:0%; --s:0.95; --stem-h:139px; animation-delay:-0.8s; z-index:10;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:1.0%; bottom:3%; --s:0.88; --stem-h:212px; animation-delay:-2.5s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:12.2%; bottom:3%; --s:0.88; --stem-h:209px; animation-delay:-3.6s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:23.8%; bottom:3%; --s:0.88; --stem-h:217px; animation-delay:-0.8s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:33.9%; bottom:3%; --s:0.88; --stem-h:207px; animation-delay:-3.9s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:43.7%; bottom:3%; --s:0.88; --stem-h:203px; animation-delay:-1.2s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:54.8%; bottom:3%; --s:0.88; --stem-h:215px; animation-delay:-3.1s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:66.9%; bottom:3%; --s:0.88; --stem-h:215px; animation-delay:-5.0s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:75.9%; bottom:3%; --s:0.88; --stem-h:216px; animation-delay:-2.7s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:88.6%; bottom:3%; --s:0.88; --stem-h:208px; animation-delay:-4.6s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:98.5%; bottom:3%; --s:0.88; --stem-h:214px; animation-delay:-3.7s; z-index:8; opacity:0.97;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:-3.0%; bottom:6%; --s:0.82; --stem-h:277px; animation-delay:-1.2s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:7.6%; bottom:6%; --s:0.82; --stem-h:275px; animation-delay:-4.9s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:18.9%; bottom:6%; --s:0.82; --stem-h:279px; animation-delay:-2.2s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:29.4%; bottom:6%; --s:0.82; --stem-h:275px; animation-delay:-1.2s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:39.8%; bottom:6%; --s:0.82; --stem-h:278px; animation-delay:-2.9s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:49.8%; bottom:6%; --s:0.82; --stem-h:276px; animation-delay:-3.5s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:61.9%; bottom:6%; --s:0.82; --stem-h:275px; animation-delay:-0.0s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:71.7%; bottom:6%; --s:0.82; --stem-h:281px; animation-delay:-0.1s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:81.3%; bottom:6%; --s:0.82; --stem-h:276px; animation-delay:-3.4s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:92.0%; bottom:6%; --s:0.82; --stem-h:273px; animation-delay:-4.0s; z-index:6; opacity:0.94;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:2.3%; bottom:9%; --s:0.78; --stem-h:342px; animation-delay:-3.1s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:11.7%; bottom:9%; --s:0.78; --stem-h:357px; animation-delay:-0.8s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:20.7%; bottom:9%; --s:0.78; --stem-h:348px; animation-delay:-4.2s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:32.4%; bottom:9%; --s:0.78; --stem-h:355px; animation-delay:-1.4s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:40.4%; bottom:9%; --s:0.78; --stem-h:352px; animation-delay:-4.0s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:52.1%; bottom:9%; --s:0.78; --stem-h:356px; animation-delay:-4.6s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:59.7%; bottom:9%; --s:0.78; --stem-h:343px; animation-delay:-0.2s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:70.0%; bottom:9%; --s:0.78; --stem-h:353px; animation-delay:-2.9s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:81.4%; bottom:9%; --s:0.78; --stem-h:349px; animation-delay:-4.1s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:90.7%; bottom:9%; --s:0.78; --stem-h:343px; animation-delay:-2.6s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:100.4%; bottom:9%; --s:0.78; --stem-h:351px; animation-delay:-3.6s; z-index:4; opacity:0.91;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:-2.0%; bottom:12%; --s:0.74; --stem-h:415px; animation-delay:-4.7s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:6.6%; bottom:12%; --s:0.74; --stem-h:415px; animation-delay:-4.1s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:16.3%; bottom:12%; --s:0.74; --stem-h:421px; animation-delay:-4.5s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:25.5%; bottom:12%; --s:0.74; --stem-h:419px; animation-delay:-1.7s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:36.7%; bottom:12%; --s:0.74; --stem-h:421px; animation-delay:-2.1s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:47.0%; bottom:12%; --s:0.74; --stem-h:419px; animation-delay:-1.5s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:56.9%; bottom:12%; --s:0.74; --stem-h:412px; animation-delay:-4.6s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:64.6%; bottom:12%; --s:0.74; --stem-h:416px; animation-delay:-0.0s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:74.4%; bottom:12%; --s:0.74; --stem-h:420px; animation-delay:-4.8s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+      <div class="sunflower" style="left:86.2%; bottom:12%; --s:0.74; --stem-h:423px; animation-delay:-1.0s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i></div></div>
+      <div class="sunflower" style="left:96.0%; bottom:12%; --s:0.74; --stem-h:417px; animation-delay:-2.6s; z-index:2; opacity:0.88;"><div class="head"><div class="petals"><i class="petal" style="--r:0deg"></i><i class="petal" style="--r:30deg"></i><i class="petal" style="--r:60deg"></i><i class="petal" style="--r:90deg"></i><i class="petal" style="--r:120deg"></i><i class="petal" style="--r:150deg"></i><i class="petal" style="--r:180deg"></i><i class="petal" style="--r:210deg"></i><i class="petal" style="--r:240deg"></i><i class="petal" style="--r:270deg"></i><i class="petal" style="--r:300deg"></i><i class="petal" style="--r:330deg"></i><i class="petal back" style="--r:15deg"></i><i class="petal back" style="--r:45deg"></i><i class="petal back" style="--r:75deg"></i><i class="petal back" style="--r:105deg"></i><i class="petal back" style="--r:135deg"></i><i class="petal back" style="--r:165deg"></i><i class="petal back" style="--r:195deg"></i><i class="petal back" style="--r:225deg"></i><i class="petal back" style="--r:255deg"></i><i class="petal back" style="--r:285deg"></i><i class="petal back" style="--r:315deg"></i><i class="petal back" style="--r:345deg"></i></div><div class="center"></div></div><div class="stem"><i class="leaf left"></i><i class="leaf right"></i></div></div>
+  </header>
+
+  <!-- ================= THE FIELD ================= -->
+  <section id="field">
+    <div class="section-inner">
+      <p class="eyebrow">The Field</p>
+      <h2>Grown from divs, gradients, and patience</h2>
+      <p class="lede">
+        Every bloom above is built from plain HTML elements and CSS — no images,
+        no JavaScript, no SVG. Petals are rotated gradient shapes, seed heads are
+        layered radial gradients, and the whole field sways on a single keyframe.
+        The rows climb gradually from front to back, the way a real field rises
+        toward the horizon.
+      </p>
+      <div class="stats">
+        <div class="stat"><strong>52</strong><span>sunflowers in bloom</span></div>
+        <div class="stat"><strong>5</strong><span>rows, front to back</span></div>
+        <div class="stat"><strong>70px</strong><span>taller with every row</span></div>
+        <div class="stat"><strong>0</strong><span>images or scripts used</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SEASON ================= -->
+  <section class="season" id="season">
+    <div class="section-inner">
+      <p class="eyebrow">The Season</p>
+      <h2>A sunflower's summer, in four stages</h2>
+      <p class="lede">
+        From seed to harvest takes roughly 90 to 110 days. Here's how the field
+        changes as the summer rolls on.
+      </p>
+      <div class="timeline">
+        <div class="stage stage-1">
+          <div class="mini"><span class="m-stem"></span><span class="m-leaf"></span><span class="m-leaf"></span></div>
+          <h3>Sprout</h3>
+          <p>Seedlings break the soil and unfold their first true leaves.</p>
+          <span class="when">Days 1–14</span>
+        </div>
+        <div class="stage stage-2">
+          <div class="mini"><span class="m-stem"></span><span class="m-leaf"></span><span class="m-leaf"></span></div>
+          <h3>Growth</h3>
+          <p>Stalks shoot upward, sometimes growing several centimeters a day.</p>
+          <span class="when">Days 15–50</span>
+        </div>
+        <div class="stage stage-3">
+          <div class="mini"><span class="m-stem"></span><span class="m-bud"></span></div>
+          <h3>Bud</h3>
+          <p>Young heads form and track the sun from east to west each day.</p>
+          <span class="when">Days 51–70</span>
+        </div>
+        <div class="stage stage-4">
+          <div class="mini"><span class="m-stem"></span><span class="m-bloom"></span></div>
+          <h3>Bloom</h3>
+          <p>Mature flowers face east and open fully — the field turns gold.</p>
+          <span class="when">Days 71–100</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= VISIT ================= -->
+  <section id="visit">
+    <div class="section-inner">
+      <p class="eyebrow">Plan a Visit</p>
+      <h2>The field is always open</h2>
+      <p class="lede">
+        No tickets, no hours — this field lives in your browser. A few ways to
+        enjoy it:
+      </p>
+      <div class="visit-grid">
+        <div class="visit-card">
+          <h3>Resize the window</h3>
+          <p>The field stretches and reflows to fill any screen, from phone to widescreen.</p>
+        </div>
+        <div class="visit-card">
+          <h3>Watch the sway</h3>
+          <p>Each flower runs the same gentle 5-second sway, offset randomly so the field ripples like wind.</p>
+        </div>
+        <div class="visit-card">
+          <h3>View the source</h3>
+          <p>Open dev tools and pick a flower apart — every petal is an element you can inspect.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-row" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i>
+    </div>
+    <a class="brand" href="#top"><span class="dot"></span>Leah&rsquo;s Sunflower Fields</a>
+    <p>Planted with HTML &amp; CSS · No images were harmed in the making of this field</p>
+  </footer>
+
+</body>
+</html>
